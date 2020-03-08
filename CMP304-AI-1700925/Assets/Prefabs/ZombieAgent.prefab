@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5216199405189608539}
   - component: {fileID: 5050402778656227870}
+  - component: {fileID: 5598068099110155281}
   m_Layer: 4
   m_Name: ZombieAgent
   m_TagString: Untagged
@@ -46,17 +47,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   annResult: []
   activatedOutputNeuron: -1
---- !u!54 &1036111369540958611
+  rewardValue: 0.01
+--- !u!54 &5598068099110155281
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6443477305083507768}
+  m_GameObject: {fileID: 3137074481474822848}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_Drag: 1
+  m_AngularDrag: 5
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0

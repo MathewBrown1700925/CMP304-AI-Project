@@ -8,10 +8,12 @@ public class ZombieManager : MonoBehaviour
     public int popSize = 50;
     [Range(1,100)]
     public int timeScale = 1;
+    [Range(0.0f, 100.0f)]
+    public float mutationChance = 1.0f;
     public GameObject goal;
     public float closestPos;
     public int genNumber = 0;
-    private int[] layers = new int[] { 2, 3, 3, 4 };
+    private int[] layers = new int[] { 5, 4, 4, 4 };
     private List<NeuralNetwork> networks;
     public GameObject zombie;
     private List<ZombieANNScript> zombieList = null;
@@ -29,7 +31,8 @@ public class ZombieManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(training == false)
+        UnityEngine.Time.timeScale = timeScale;
+        if (training == false)
         {
             if (genNumber == 0)
             {
@@ -48,10 +51,12 @@ public class ZombieManager : MonoBehaviour
                 }
                 networks[closestIndex].IncrimentFitness(1);
                 networks.Sort();
-                for (int i = 0; i < popSize-1; i++)
+                for (int i = 0; i < popSize; i++)
                 {
-                    networks[i] = new NeuralNetwork(networks[popSize-1]);
-                    networks[i].Mutate();
+                    networks[i] = new NeuralNetwork(networks[i]);
+                    //networks[i] = new NeuralNetwork(networks[popSize-1]);
+                    networks[i] = networks[i].Reproduction(networks[popSize - 1]);
+                    networks[i].MutateAlternate(mutationChance);
                     networks[popSize-1] = new NeuralNetwork(networks[popSize-1]);
                 }
                 for (int i = 0; i < popSize; i++)
@@ -79,7 +84,7 @@ public class ZombieManager : MonoBehaviour
         for (int i = 0; i < popSize; i++)
         {
 
-            ZombieANNScript zombieObj = ((GameObject)Instantiate(zombie, new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(-10f, 10f),0),zombie.transform.rotation)).GetComponent<ZombieANNScript>();
+            ZombieANNScript zombieObj = ((GameObject)Instantiate(zombie, new Vector3(UnityEngine.Random.Range(-10f, 10f), 2, UnityEngine.Random.Range(-10f, 10f)),zombie.transform.rotation)).GetComponent<ZombieANNScript>();
             zombieObj.Init(networks[i],goal);
             zombieList.Add(zombieObj);
         }

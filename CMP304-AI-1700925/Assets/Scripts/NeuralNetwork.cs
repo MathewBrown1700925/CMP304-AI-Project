@@ -123,6 +123,49 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
         }
     }
 
+    public void MutateAlternate(float mutationChance)
+    {
+        for (int i = 0; i < weightings.Length; i++)
+        {
+            for (int l = 0; l < weightings[i].Length; l++)
+            {
+                for (int p = 0; p < weightings[i][l].Length; p++)
+                {
+                    float currentWeight = weightings[i][l][p];
+                    //
+                    float randNum = UnityEngine.Random.Range(0.0f, 100.0f);
+                    if (randNum <= mutationChance)
+                    {
+                        currentWeight = UnityEngine.Random.Range(-0.5f,0.5f);
+                    }
+                    weightings[i][l][p] = currentWeight;
+                }
+            }
+        }
+    }
+
+    public NeuralNetwork Reproduction(NeuralNetwork otherParent)
+    {
+        NeuralNetwork child = new NeuralNetwork(layers);
+        for (int i = 0; i < weightings.Length; i++)
+        {
+            for (int l = 0; l < weightings[i].Length; l++)
+            {
+                for (int p = 0; p < weightings[i][l].Length; p++)
+                {
+                    if (UnityEngine.Random.Range(1,2) == 1)
+                    {
+                        child.weightings[i][l][p] = weightings[i][l][p];
+                    } else
+                    {
+                        child.weightings[i][l][p] = otherParent.weightings[i][l][p];
+                    }
+                }
+            }
+        }
+        return child;
+    }
+
 
     //Deep Copy
     public NeuralNetwork(NeuralNetwork copyNet)
