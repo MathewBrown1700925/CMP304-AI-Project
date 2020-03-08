@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-public class NeuralNetwork : MonoBehaviour
+public class NeuralNetwork : IComparable<NeuralNetwork>
 {
     //Public Parameters
     public float constantBias = 0.25f;
@@ -10,6 +11,8 @@ public class NeuralNetwork : MonoBehaviour
     private int[] layers;
     private float[][] neurons;
     private float[][][] weightings;
+    private float fitness;
+
     public NeuralNetwork(int[] pLayers)
     {
         //Initialise layers
@@ -50,7 +53,7 @@ public class NeuralNetwork : MonoBehaviour
                 //
                 for (int l = 0; l < previousLayerNeuronsCount; l++)
                 {
-                    neuronWeightings[l] = Random.Range(0.0f, 1.0f) - 0.5f;
+                    neuronWeightings[l] = UnityEngine.Random.Range(0.0f, 1.0f) - 0.5f;
                 }
                 layerWieghtingsList.Add(neuronWeightings);
             }
@@ -99,19 +102,19 @@ public class NeuralNetwork : MonoBehaviour
                 {
                     float currentWeight = weightings[i][l][p];
                     //
-                    float randNum = Random.Range(0.0f, 1000.0f);
+                    float randNum = UnityEngine.Random.Range(0.0f, 1000.0f);
                     if (randNum <=2f)
                     {
                         currentWeight *= -1f;
                     } else if (randNum <= 4f)
                     {
-                        currentWeight = Random.Range(-0.5f, 0.5f);
+                        currentWeight = UnityEngine.Random.Range(-0.5f, 0.5f);
                     } else if (randNum <= 6f)
                     {
-                        currentWeight *= Random.Range(0.0f, 1.0f) + 1f;
+                        currentWeight *= UnityEngine.Random.Range(0.0f, 1.0f) + 1f;
                     } else if (randNum <= 8f)
                     {
-                        currentWeight *= Random.Range(0.0f, 1.0f);
+                        currentWeight *= UnityEngine.Random.Range(0.0f, 1.0f);
                     }
                     //
                     weightings[i][l][p] = currentWeight;
@@ -147,5 +150,34 @@ public class NeuralNetwork : MonoBehaviour
             }
         }
     }
+
+    public void IncrimentFitness(float fitnessAmount)
+    {
+        fitness += fitnessAmount;
+    }
+
+    public void SetFitness(float fitnessAmount)
+    {
+        fitness = fitnessAmount;
+    }
+
+    public int CompareTo(NeuralNetwork otherNetwork)
+    {
+        if (otherNetwork == null)
+        {
+            return 1;
+        }
+        if (fitness > otherNetwork.fitness)
+        {
+            return 1;
+        } else if (fitness < otherNetwork.fitness)
+        {
+            return -1;
+        } else
+        {
+            return 0;
+        }
+    }
+
 }
 
