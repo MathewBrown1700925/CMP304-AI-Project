@@ -13,7 +13,10 @@ public class ZombieANNScript : MonoBehaviour
     public float rewardValue = 0.01f;
     private float[] obstacleDistance;
     int inputNum = 5;
-    float raycastDistance = 1;
+    public int noOfCollisions = 0;
+    float raycastDistance = 10;
+    public bool collideFlag = false;
+    public bool collideGoal = false;
     NeuralNetwork ann;
     bool initialised = false;
     Rigidbody rigBody;
@@ -29,7 +32,7 @@ public class ZombieANNScript : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (initialised == true)
+        if ((initialised == true)&&(collideFlag == false))
         {
             float[] inputs = new float[inputNum];
             Vector3 relativePos = this.transform.position - goal.transform.position;
@@ -129,9 +132,14 @@ public class ZombieANNScript : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.gameObject.tag != "Target")
+        if ((collision.collider.gameObject.tag != "Target")&&(collision.collider.gameObject.tag != "Enviroment"))
         {
-            ann.IncrimentFitness(-3.0f);
+            // ann.IncrimentFitness(-1.0f);
+            noOfCollisions++;
+            collideFlag = true;
+        } else if (collision.collider.gameObject.tag == "Target")
+        {
+            collideGoal = true;
         }
     }
 }

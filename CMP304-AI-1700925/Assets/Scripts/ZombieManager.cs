@@ -10,8 +10,11 @@ public class ZombieManager : MonoBehaviour
     public int timeScale = 1;
     [Range(0.0f, 100.0f)]
     public float mutationChance = 1.0f;
+    public float trainingTime = 15.0f;
+    public Vector3 spawnPoint;
     public GameObject goal;
     public float closestPos;
+    public float furthestPos;
     public int genNumber = 0;
     private int[] layers = new int[] { 5, 4, 4, 4 };
     private List<NeuralNetwork> networks;
@@ -39,34 +42,56 @@ public class ZombieManager : MonoBehaviour
                 InitZombies();
             } else
             {
+                NeuralNetwork[] bestNets = new NeuralNetwork[4];
                 closestPos = Mathf.Infinity;
-                int closestIndex = -1;
                 for (int l = 0; l < popSize; l++)
                 {
-                    if ((zombieList[l].gameObject.transform.position - goal.transform.position).magnitude < closestPos)
+                    if (zombieList[l].collideFlag == true)
                     {
-                        closestPos = (zombieList[l].gameObject.transform.position - goal.transform.position).magnitude;
-                        closestIndex = l;
+                        networks[l].IncrimentFitness(-20);
+                    }
+                        float relativePos = (zombieList[l].transform.position - goal.transform.position).magnitude;
+                        if (relativePos < 1)
+                        {
+                            relativePos = 1;
+                        }
+                        float fitnessQuantity = 10 / relativePos + zombieList[l].noOfCollisions*2;
+                    if (zombieList[l].collideGoal == true)
+                    {
+                        networks[l].IncrimentFitness(100);
+                    } else if (relativePos < 5)
+                    {
+                        networks[l].IncrimentFitness(20);
+                    } else if (relativePos < 10)
+                    {
+                        networks[l].IncrimentFitness(10);
+                    }
+                   
+                }
+              
+                networks.Sort();
+                int bestNetIndex = 0;
+                for (int p = popSize - 1; p > popSize - 5; p--)
+                {
+                    bestNets[bestNetIndex] = networks[p];
+                    bestNetIndex++;
+                    if (bestNetIndex == 4)
+                    {
+                        break;
                     }
                 }
-                networks[closestIndex].IncrimentFitness(1);
-                networks.Sort();
                 for (int i = 0; i < popSize; i++)
                 {
-                    networks[i] = new NeuralNetwork(networks[i]);
-                    //networks[i] = new NeuralNetwork(networks[popSize-1]);
-                    networks[i] = networks[i].Reproduction(networks[popSize - 1]);
-                    networks[i].MutateAlternate(mutationChance);
-                    networks[popSize-1] = new NeuralNetwork(networks[popSize-1]);
-                }
-                for (int i = 0; i < popSize; i++)
-                {
+                    //Reproduce with the 'best' solution
+                    NeuralNetwork child = networks[i].Reproduction(bestNets[UnityEngine.Random.Range(0,2)]);
+                    child.MutateAlternate(mutationChance);
+                    networks[i] = child;
                     networks[i].SetFitness(0.0f);
                 }
             }
             genNumber++;
             training = true;
-            Invoke("StopTraining", 15f);
+            Invoke("StopTraining", trainingTime);
             SpawnZombies();
         }
     }
@@ -83,8 +108,10 @@ public class ZombieManager : MonoBehaviour
         zombieList = new List<ZombieANNScript>();
         for (int i = 0; i < popSize; i++)
         {
-
-            ZombieANNScript zombieObj = ((GameObject)Instantiate(zombie, new Vector3(UnityEngine.Random.Range(-10f, 10f), 2, UnityEngine.Random.Range(-10f, 10f)),zombie.transform.rotation)).GetComponent<ZombieANNScript>();
+            Vector3 spawnPos = new Vector3(spawnPoint.x +UnityEngine.Random.Range(-10.0f, 10.0f), spawnPoint.y, spawnPoint.z+UnityEngine.Random.Range(-10.0f, 10.0f));
+            Transform spawnTransform = zombie.transform;
+            spawnTransform.position = spawnPos;
+            ZombieANNScript zombieObj = ((GameObject)Instantiate(zombie, spawnTransform)).GetComponent<ZombieANNScript>();
             zombieObj.Init(networks[i],goal);
             zombieList.Add(zombieObj);
         }

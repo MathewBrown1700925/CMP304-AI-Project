@@ -153,7 +153,7 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
             {
                 for (int p = 0; p < weightings[i][l].Length; p++)
                 {
-                    if (UnityEngine.Random.Range(1,2) == 1)
+                    if (UnityEngine.Random.Range(1,100) < 50)
                     {
                         child.weightings[i][l][p] = weightings[i][l][p];
                     } else
