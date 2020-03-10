@@ -30,6 +30,7 @@ public class ZombieManager : MonoBehaviour
     public UnityEngine.UI.Text timeText;
     private float currentTime = 0.0f;
     private float timeAtStart = 0.0f;
+    public string filename;
 
     void StopTraining()
     {
@@ -190,5 +191,20 @@ public class ZombieManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    private void PrintCSV(float[] firstColumn,float[] secondColumn,float[] thirdColumn,int noOfRows)
+    {
+        System.Text.StringBuilder csvFile = new System.Text.StringBuilder();
+        for (int i = 0; i <noOfRows;i++)
+        {
+            string col1 = firstColumn[i].ToString();
+            string col2 = secondColumn[i].ToString();
+            string col3 = thirdColumn[i].ToString();
+            string line = string.Format("{0},{1},{2}",col1,col2,col3);
+            csvFile.AppendLine(line);
+        }
+        string filepath = Application.dataPath + filename;
+        System.IO.File.WriteAllText(filepath,csvFile.ToString());
     }
 }
