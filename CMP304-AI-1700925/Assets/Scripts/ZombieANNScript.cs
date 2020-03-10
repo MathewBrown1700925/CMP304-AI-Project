@@ -17,6 +17,7 @@ public class ZombieANNScript : MonoBehaviour
     float raycastDistance = 10;
     public bool collideFlag = false;
     public bool collideGoal = false;
+    public int distanceFromGoal = 100;
     NeuralNetwork ann;
     bool initialised = false;
     Rigidbody rigBody;
@@ -83,8 +84,8 @@ public class ZombieANNScript : MonoBehaviour
                     rigBody.AddForce(new Vector3(0.0f, 0.0f, -1.0f * forceVal));
                     break;
             }
-            //this.transform.position = newPos;
-            //Manual Control
+            //
+            //
             if (Input.GetKeyDown(KeyCode.A))
             {
                 newPos.x--;
@@ -136,7 +137,7 @@ public class ZombieANNScript : MonoBehaviour
         {
             // ann.IncrimentFitness(-1.0f);
             noOfCollisions++;
-            collideFlag = true;
+            //collideFlag = true;
         } else if (collision.collider.gameObject.tag == "Target")
         {
             collideGoal = true;

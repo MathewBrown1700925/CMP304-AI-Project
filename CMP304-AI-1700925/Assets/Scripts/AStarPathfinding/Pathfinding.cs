@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class Pathfinding : MonoBehaviour {
 
-    Grid GridReference;//For referencing the grid class
+    public Grid GridReference;//For referencing the grid class
     public Transform StartPosition;//Starting position to pathfind from
     public Transform TargetPosition;//Starting position to pathfind to
+    public List<Node> FinalPath = new List<Node>();//List to hold the path sequentially ;
 
     private void Awake()//When the program starts
     {
@@ -15,10 +16,10 @@ public class Pathfinding : MonoBehaviour {
 
     private void Update()//Every frame
     {
-        FindPath(StartPosition.position, TargetPosition.position);//Find a path to the goal
+       // FindPath(StartPosition.position, TargetPosition.position);//Find a path to the goal
     }
 
-    void FindPath(Vector3 a_StartPos, Vector3 a_TargetPos)
+    public void FindPath(Vector3 a_StartPos, Vector3 a_TargetPos)
     {
         Node StartNode = GridReference.NodeFromWorldPoint(a_StartPos);//Gets the node closest to the starting position
         Node TargetNode = GridReference.NodeFromWorldPoint(a_TargetPos);//Gets the node closest to the target position
@@ -74,7 +75,7 @@ public class Pathfinding : MonoBehaviour {
 
     void GetFinalPath(Node a_StartingNode, Node a_EndNode)
     {
-        List<Node> FinalPath = new List<Node>();//List to hold the path sequentially 
+        FinalPath = new List<Node>();//List to hold the path sequentially 
         Node CurrentNode = a_EndNode;//Node to store the current node being checked
 
         while(CurrentNode != a_StartingNode)//While loop to work through each node going through the parents to the beginning of the path

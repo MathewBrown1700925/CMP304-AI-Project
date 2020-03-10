@@ -13,12 +13,15 @@ public class ZombieManager : MonoBehaviour
     public float trainingTime = 15.0f;
     public Vector3 spawnPoint;
     public GameObject goal;
-    public float closestPos;
-    public float furthestPos;
+    public float highestFitness;
+    public float averageFitness;
     public int genNumber = 0;
     private int[] layers = new int[] { 5, 4, 4, 4 };
     private List<NeuralNetwork> networks;
     public GameObject zombie;
+    public Grid astarGrid;
+    public bool collisionReward = true;
+    Pathfinding pathfinding;
     private List<ZombieANNScript> zombieList = null;
 
     void StopTraining()
@@ -29,6 +32,10 @@ public class ZombieManager : MonoBehaviour
     private void Start()
     {
         UnityEngine.Time.timeScale = timeScale;
+        astarGrid = GetComponent<Grid>();
+        pathfinding = GetComponent<Pathfinding>();
+        highestFitness = 0;
+        averageFitness = 0;
     }
 
     // Update is called once per frame
@@ -43,35 +50,41 @@ public class ZombieManager : MonoBehaviour
             } else
             {
                 NeuralNetwork[] bestNets = new NeuralNetwork[4];
-                closestPos = Mathf.Infinity;
+                averageFitness = 0;
                 for (int l = 0; l < popSize; l++)
                 {
-                    if (zombieList[l].collideFlag == true)
+                    pathfinding.StartPosition = zombieList[l].transform;
+                    astarGrid.StartPosition = zombieList[l].transform;
+                    pathfinding.FindPath(zombieList[l].transform.position, goal.transform.position);
+                    zombieList[l].distanceFromGoal = pathfinding.FinalPath.Count;
+                    float fitnessQuantity = 100;
+                    float collisionNum = zombieList[l].noOfCollisions * 2;
+                    float relativeDist = 0.0f;
+                    if (collisionReward == false)
                     {
-                        networks[l].IncrimentFitness(-20);
+                        collisionNum = 1;
                     }
-                        float relativePos = (zombieList[l].transform.position - goal.transform.position).magnitude;
-                        if (relativePos < 1)
-                        {
-                            relativePos = 1;
-                        }
-                        float fitnessQuantity = 10 / relativePos + zombieList[l].noOfCollisions*2;
-                    if (zombieList[l].collideGoal == true)
+                    if (collisionNum < 1)
                     {
-                        networks[l].IncrimentFitness(100);
-                    } else if (relativePos < 5)
-                    {
-                        networks[l].IncrimentFitness(20);
-                    } else if (relativePos < 10)
-                    {
-                        networks[l].IncrimentFitness(10);
+                        collisionNum = 1;
                     }
-                   
+                    if (zombieList[l].distanceFromGoal > 2)
+                    {
+                        relativeDist = (zombieList[l].transform.position - goal.transform.position).magnitude / 10;
+                        fitnessQuantity = 100000 / zombieList[l].distanceFromGoal;
+                    }else
+                    {
+                        relativeDist = (zombieList[l].transform.position - goal.transform.position).magnitude / 10;
+                        fitnessQuantity = 101;
+                    }
+                    networks[l].SetFitness(fitnessQuantity);
+                    averageFitness += fitnessQuantity;
                 }
-              
-                networks.Sort();
+                averageFitness /= popSize;
+               // networks.Sort();
                 int bestNetIndex = 0;
-                for (int p = popSize - 1; p > popSize - 5; p--)
+                highestFitness = networks[popSize-1].GetFitness();
+                for (int p = popSize - 1; p > popSize - 6; p--)
                 {
                     bestNets[bestNetIndex] = networks[p];
                     bestNetIndex++;
@@ -80,13 +93,22 @@ public class ZombieManager : MonoBehaviour
                         break;
                     }
                 }
-                for (int i = 0; i < popSize; i++)
+                List<NeuralNetwork> nextGen = new List<NeuralNetwork>();
+                for (int i = 0; i < popSize-10; i++)
                 {
                     //Reproduce with the 'best' solution
-                    NeuralNetwork child = networks[i].Reproduction(bestNets[UnityEngine.Random.Range(0,2)]);
-                    child.MutateAlternate(mutationChance);
-                    networks[i] = child;
-                    networks[i].SetFitness(0.0f);
+                        NeuralNetwork child = RouletteWheelSelection().Reproduction(RouletteWheelSelection());
+                        child.MutateAlternate(mutationChance);
+                    //networks[i] = child;
+                    //networks[i].SetFitness(0.0f);
+                    child.SetFitness(0.0f);
+                    nextGen.Add(child);
+
+                }
+                networks.Sort();
+                for (int i = 0; i < popSize-10; i++)
+                {
+                    networks[i] = nextGen[i];
                 }
             }
             genNumber++;
@@ -111,8 +133,8 @@ public class ZombieManager : MonoBehaviour
             Vector3 spawnPos = new Vector3(spawnPoint.x +UnityEngine.Random.Range(-10.0f, 10.0f), spawnPoint.y, spawnPoint.z+UnityEngine.Random.Range(-10.0f, 10.0f));
             Transform spawnTransform = zombie.transform;
             spawnTransform.position = spawnPos;
-            ZombieANNScript zombieObj = ((GameObject)Instantiate(zombie, spawnTransform)).GetComponent<ZombieANNScript>();
-            zombieObj.Init(networks[i],goal);
+            ZombieANNScript zombieObj = (Instantiate(zombie, new Vector3(spawnPoint.x + UnityEngine.Random.Range(-10.0f, 10.0f), spawnPoint.y, spawnPoint.z + UnityEngine.Random.Range(-10.0f, 10.0f)),zombie.transform.rotation) as GameObject).GetComponent<ZombieANNScript>();
+            zombieObj.Init(networks[i], goal);
             zombieList.Add(zombieObj);
         }
     }
@@ -131,5 +153,27 @@ public class ZombieManager : MonoBehaviour
             tempNetwork.Mutate();
             networks.Add(tempNetwork);
         }
+    }
+
+
+    private NeuralNetwork RouletteWheelSelection()
+    {
+        float fitnessTotalSum = 0.0f;
+        for (int i = 0; i < popSize; i++)
+        {
+            fitnessTotalSum += networks[i].GetFitness();
+        }
+        float randomSum = UnityEngine.Random.Range(0.0f, fitnessTotalSum);
+        float partialFitnessSum = 0.0f;
+        for (int i = 0; i < popSize; i++)
+        {
+            partialFitnessSum += networks[i].GetFitness();
+            if (partialFitnessSum >= randomSum)
+            {
+                return networks[i];
+            }
+        }
+
+        return null;
     }
 }

@@ -137,28 +137,39 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
                     if (randNum <= mutationChance)
                     {
                         currentWeight = UnityEngine.Random.Range(-0.5f,0.5f);
+                        weightings[i][l][p] = currentWeight;
+                        goto END;
                     }
-                    weightings[i][l][p] = currentWeight;
                 }
             }
         }
+    END:;
     }
 
     public NeuralNetwork Reproduction(NeuralNetwork otherParent)
     {
         NeuralNetwork child = new NeuralNetwork(layers);
+        bool crossoverPointReached = false;
+        int[] randomPoint = new int[3];
+        randomPoint[0] = UnityEngine.Random.Range(0, weightings.Length);
+        randomPoint[1] = UnityEngine.Random.Range(0, weightings[0].Length);
+        randomPoint[2] = UnityEngine.Random.Range(0, weightings[0][0].Length);
         for (int i = 0; i < weightings.Length; i++)
         {
             for (int l = 0; l < weightings[i].Length; l++)
             {
                 for (int p = 0; p < weightings[i][l].Length; p++)
                 {
-                    if (UnityEngine.Random.Range(1,100) < 50)
+                    if ((i == randomPoint[0]) && (l == randomPoint[1]) && (p == randomPoint[2]))
                     {
-                        child.weightings[i][l][p] = weightings[i][l][p];
-                    } else
+                        crossoverPointReached = true;
+                    }
+                    if (crossoverPointReached == true)
                     {
                         child.weightings[i][l][p] = otherParent.weightings[i][l][p];
+                    } else
+                    {
+                        child.weightings[i][l][p] = weightings[i][l][p];
                     }
                 }
             }
@@ -220,6 +231,10 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
         {
             return 0;
         }
+    }
+    public float GetFitness()
+    {
+        return fitness;
     }
 
 }
