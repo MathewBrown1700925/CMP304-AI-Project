@@ -6,8 +6,9 @@ using UnityEngine;
 //Neural Network Class
 public class NeuralNetwork : IComparable<NeuralNetwork>
 {
-    //Public Parameters
+    //Public Members
     public float constantBias = 0.25f;
+    //Private Members
     //Layer Index
     //0 = Input
     //1-2 Hidden

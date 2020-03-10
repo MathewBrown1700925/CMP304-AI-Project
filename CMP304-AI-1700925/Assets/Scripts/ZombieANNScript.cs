@@ -3,38 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-
+//Script to handle operations of individual zombie agents
 public class ZombieANNScript : MonoBehaviour
 {
-    //Public parameters
+    //Public Members
     public float[] annResult;
-    private GameObject goal;
-    public int activatedOutputNeuron = -1;
-    public float rewardValue = 0.01f;
-    private float[] obstacleDistance;
-    int inputNum = 5;
-    public int noOfCollisions = 0;
-    float raycastDistance = 10;
-    public bool collideFlag = false;
-    public bool collideGoal = false;
     public int distanceFromGoal = 100;
-    NeuralNetwork ann;
-    bool initialised = false;
-    Rigidbody rigBody;
-//    private int[] layers = new int[] { 2, 3, 3, 4 };
-    // Start is called before the first frame update
+    public int noOfCollisions = 0;
+    //Private Members
+    private int activatedOutputNeuron;
+    private GameObject goal;
+    private float[] obstacleDistance;
+    private int inputNum = 5;
+    private float raycastDistance = 10;
+    private NeuralNetwork ann;
+    private bool initialised = false;
+    private Rigidbody rigBody;
+    //
     void Start()
     {
-        // ann = new NeuralNetwork(layers);
-        //ann.Mutate();
+        //Initialise Upon Creation
         obstacleDistance = new float[3];
         rigBody = GetComponentInChildren<Rigidbody>();
     }
 
     private void FixedUpdate()
     {
-        if ((initialised == true)&&(collideFlag == false))
+        if (initialised == true)
         {
+            //Set up inputs to neural network and raycasts
             float[] inputs = new float[inputNum];
             Vector3 relativePos = this.transform.position - goal.transform.position;
             Ray leftRay = new Ray(this.transform.position, -this.transform.right);
@@ -44,6 +41,8 @@ public class ZombieANNScript : MonoBehaviour
             inputs[0] = (float)relativePos.x;
             inputs[1] = (float)relativePos.z;
             //
+            //Check if objects have been hit with raycast
+            //if they have nput the distance at which they were found to the network
             RaycastHit rayDetails = new RaycastHit();
             if (Physics.Raycast(leftRay, out rayDetails,raycastDistance)) {
                 inputs[2] = rayDetails.distance;
@@ -60,9 +59,12 @@ public class ZombieANNScript : MonoBehaviour
                 inputs[4] = rayDetails.distance;
             }
             //
+            //Forward Propogation function takes inputs and takes them through layers, outputting the values of all the output nodes
             annResult = ann.ForwardProp(inputs);
+            //Find the node for which the network has activated and act according to inputs
             activatedOutputNeuron = FindActiveNode(annResult);
             Vector3 newPos = this.transform.position;
+            //Value to determine the magnitude of the force applied to the rigid body components
             float forceVal = 45.0f;
             //
             switch (activatedOutputNeuron)
@@ -84,33 +86,12 @@ public class ZombieANNScript : MonoBehaviour
                     rigBody.AddForce(new Vector3(0.0f, 0.0f, -1.0f * forceVal));
                     break;
             }
-            //
-            //
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                newPos.x--;
-                this.transform.position = newPos;
-            }
-            if (Input.GetKeyDown(KeyCode.D))
-            {
-                newPos.x++;
-                this.transform.position = newPos;
-            }
-            if (Input.GetKeyDown(KeyCode.W))
-            {
-                newPos.z++;
-                this.transform.position = newPos;
-            }
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                newPos.z--;
-                this.transform.position = newPos;
-            }
         }
     }
-
+    //Function to find the active node out of the output layer
     private int FindActiveNode(float[] outputs)
     {
+        //Simple Find Max Standard Algorithm
         float currentMaxVal = 0.0f;
         int maxIndex = -1;
         for (int i = 0; i < outputs.Length; i++)
@@ -123,24 +104,19 @@ public class ZombieANNScript : MonoBehaviour
         }
         return maxIndex;
     }
-
+    //initialisation function for initialisation after instantiation(update of goal location and neural network)
     public void Init(NeuralNetwork net,GameObject pGoal)
     {
         ann = net;
         goal = pGoal;
         initialised = true;
     }
-
+    //Incriment number of collisions counter when the zombie collides with objects outside of the floor and goal object
     private void OnCollisionEnter(Collision collision)
     {
         if ((collision.collider.gameObject.tag != "Target")&&(collision.collider.gameObject.tag != "Enviroment"))
         {
-            // ann.IncrimentFitness(-1.0f);
             noOfCollisions++;
-            //collideFlag = true;
-        } else if (collision.collider.gameObject.tag == "Target")
-        {
-            collideGoal = true;
-        }
+        } 
     }
 }
