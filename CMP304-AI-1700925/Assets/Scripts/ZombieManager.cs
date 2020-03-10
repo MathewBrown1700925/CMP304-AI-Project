@@ -49,6 +49,10 @@ public class ZombieManager : MonoBehaviour
         averageFitness = 0;
         timeAtStart = Time.time;
         currentTime = Time.time - timeAtStart;
+        //
+        genList = new List<float>();
+        timeList = new List<float>();
+        fitnessList = new List<float>();
     }
 
     // Update is called once per frame
@@ -203,15 +207,16 @@ public class ZombieManager : MonoBehaviour
     private void PrintCSV(float[] firstColumn,float[] secondColumn,float[] thirdColumn,int noOfRows)
     {
         System.Text.StringBuilder csvFile = new System.Text.StringBuilder();
+        csvFile.AppendLine("Generations,Time,AvgFitness");
         for (int i = 0; i <noOfRows;i++)
         {
             string col1 = firstColumn[i].ToString();
             string col2 = secondColumn[i].ToString();
             string col3 = thirdColumn[i].ToString();
-            string line = string.Format("{0},{1},{2}",col1,col2,col3);
+            string line = col1 + "," + col2 + "," + col3;
             csvFile.AppendLine(line);
         }
-        string filepath = Application.dataPath + filename;
+        string filepath = Application.dataPath + "/" + filename;
         System.IO.File.WriteAllText(filepath,csvFile.ToString());
     }
 }

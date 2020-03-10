@@ -95,7 +95,50 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
         //Return output layer
         return neurons[neurons.Length-1];
     }
-    //Simple mutation function that has a chance to randomise a single weight in a layer
+
+    public void Mutate()
+    {
+        for (int i = 0; i < weightings.Length; i++)
+        {
+            for (int j = 0; j < weightings[i].Length; j++)
+            {
+                for (int k = 0; k < weightings[i][j].Length; k++)
+                {
+                    float weight = weightings[i][j][k];
+
+                    //mutate weight value 
+                    float randomNumber = UnityEngine.Random.Range(0f, 100f);
+
+                    if (randomNumber <= 2f)
+                    { //if 1
+                      //flip sign of weight
+                        weight *= -1f;
+                    }
+                    else if (randomNumber <= 4f)
+                    { //if 2
+                      //pick random weight between -1 and 1
+                        weight = UnityEngine.Random.Range(-0.5f, 0.5f);
+                    }
+                    else if (randomNumber <= 6f)
+                    { //if 3
+                      //randomly increase by 0% to 100%
+                        float factor = UnityEngine.Random.Range(0f, 1f) + 1f;
+                        weight *= factor;
+                    }
+                    else if (randomNumber <= 8f)
+                    { //if 4
+                      //randomly decrease by 0% to 100%
+                        float factor = UnityEngine.Random.Range(0f, 1f);
+                        weight *= factor;
+                    }
+
+                    weightings[i][j][k] = weight;
+                }
+            }
+        }
+    }
+
+    //Alternate mutation function that has a chance to randomise a single weight in a layer
     public void MutateAlternate(float mutationChance)
     {
         for (int i = 0; i < weightings.Length; i++)

@@ -1328,7 +1328,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   training: 0
   popSize: 30
-  timeScale: 28
+  timeScale: 1
   mutationChance: 6
   trainingTime: 15
   spawnPoint: {x: -7, y: 2, z: 7.29}
@@ -1344,6 +1344,7 @@ MonoBehaviour:
   timeScaleText: {fileID: 1439318178}
   mutationRateText: {fileID: 419434231}
   timeText: {fileID: 986808736}
+  filename: data.csv
 --- !u!4 &1960049226
 Transform:
   m_ObjectHideFlags: 0
