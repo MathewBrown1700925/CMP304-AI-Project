@@ -23,6 +23,11 @@ public class ZombieManager : MonoBehaviour
     public bool collisionReward = true;
     Pathfinding pathfinding;
     private List<ZombieANNScript> zombieList = null;
+    public UnityEngine.UI.Text generationText;
+    public UnityEngine.UI.Text averageFitnessText;
+    public UnityEngine.UI.Text timeScaleText;
+    public UnityEngine.UI.Text mutationRateText;
+    public UnityEngine.UI.Text timeText;
 
     void StopTraining()
     {
@@ -112,6 +117,10 @@ public class ZombieManager : MonoBehaviour
                 }
             }
             genNumber++;
+            generationText.text = "Generation Number:" + genNumber.ToString();
+            averageFitnessText.text = "Average Fitness:" + averageFitness.ToString();
+            timeScaleText.text = "World Time Scale:" + UnityEngine.Time.timeScale.ToString();
+            mutationRateText.text = "Mutation Rate:" + mutationChance.ToString() + "%";
             training = true;
             Invoke("StopTraining", trainingTime);
             SpawnZombies();
