@@ -38,6 +38,7 @@ public class ZombieManager : MonoBehaviour
     public bool collisionReward = true;
     //UI Elements
     public UnityEngine.UI.Text generationText;
+    public UnityEngine.UI.Text popSizeText;
     public UnityEngine.UI.Text averageFitnessText;
     public UnityEngine.UI.Text timeScaleText;
     public UnityEngine.UI.Text mutationRateText;
@@ -164,6 +165,7 @@ public class ZombieManager : MonoBehaviour
             genNumber++;
             //Update UI
             generationText.text = "Generation Number:" + genNumber.ToString();
+            popSizeText.text = "Population Size:" + popSize.ToString();
             averageFitnessText.text = "Average Fitness:" + averageFitness.ToString();
             timeScaleText.text = "World Time Scale:" + UnityEngine.Time.timeScale.ToString();
             mutationRateText.text = "Mutation Rate:" + mutationChance.ToString() + "%";

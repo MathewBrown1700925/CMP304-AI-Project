@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3137074481474822848}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.678936, y: 2, z: 11.537963}
+  m_LocalPosition: {x: -1.3598104, y: 2, z: 5.2595167}
   m_LocalScale: {x: 0.49, y: 0.49, z: 0.49}
   m_Children:
   - {fileID: 8012059458116896299}
@@ -46,12 +46,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   annResult: []
-  activatedOutputNeuron: -1
-  rewardValue: 0.01
-  noOfCollisions: 0
-  collideFlag: 0
-  collideGoal: 0
   distanceFromGoal: 100
+  noOfCollisions: 0
 --- !u!54 &5598068099110155281
 Rigidbody:
   m_ObjectHideFlags: 0
