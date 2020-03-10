@@ -28,6 +28,8 @@ public class ZombieManager : MonoBehaviour
     public UnityEngine.UI.Text timeScaleText;
     public UnityEngine.UI.Text mutationRateText;
     public UnityEngine.UI.Text timeText;
+    private float currentTime = 0.0f;
+    private float timeAtStart = 0.0f;
 
     void StopTraining()
     {
@@ -41,12 +43,15 @@ public class ZombieManager : MonoBehaviour
         pathfinding = GetComponent<Pathfinding>();
         highestFitness = 0;
         averageFitness = 0;
+        timeAtStart = Time.time;
+        currentTime = Time.time - timeAtStart;
     }
 
     // Update is called once per frame
     void Update()
     {
         UnityEngine.Time.timeScale = timeScale;
+        currentTime = Time.time - timeAtStart;
         if (training == false)
         {
             if (genNumber == 0)
@@ -121,6 +126,7 @@ public class ZombieManager : MonoBehaviour
             averageFitnessText.text = "Average Fitness:" + averageFitness.ToString();
             timeScaleText.text = "World Time Scale:" + UnityEngine.Time.timeScale.ToString();
             mutationRateText.text = "Mutation Rate:" + mutationChance.ToString() + "%";
+            timeText.text = "Time:" + currentTime.ToString();
             training = true;
             Invoke("StopTraining", trainingTime);
             SpawnZombies();
