@@ -31,6 +31,9 @@ public class ZombieManager : MonoBehaviour
     private float currentTime = 0.0f;
     private float timeAtStart = 0.0f;
     public string filename;
+    private List<float> genList;
+    private List<float> timeList;
+    private List<float> fitnessList;
 
     void StopTraining()
     {
@@ -131,6 +134,10 @@ public class ZombieManager : MonoBehaviour
             training = true;
             Invoke("StopTraining", trainingTime);
             SpawnZombies();
+            genList.Add(genNumber);
+            fitnessList.Add(averageFitness);
+            timeList.Add(currentTime);
+            PrintCSV(genList.ToArray(),timeList.ToArray(),fitnessList.ToArray(),genList.Count);
         }
     }
 

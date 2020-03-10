@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 
+//Neural Network Class
 public class NeuralNetwork : IComparable<NeuralNetwork>
 {
     //Public Parameters
     public float constantBias = 0.25f;
-    //Layer index 1 = hidden layer
+    //Layer Index
+    //0 = Input
+    //1-2 Hidden
+    //3 Output
     private int[] layers;
     private float[][] neurons;
     private float[][][] weightings;
     private float fitness;
-
+    //Constructor taking the quantity of neurons per layer as a parameter
     public NeuralNetwork(int[] pLayers)
     {
         //Initialise layers
@@ -50,7 +54,7 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
             for (int p = 0; p < neurons.Length; p++)
             {
                 float[] neuronWeightings = new float[previousLayerNeuronsCount];
-                //
+                //As weightings will be found by the Genetic Algorithm, random weightings can be used for the purpose of initialisation
                 for (int l = 0; l < previousLayerNeuronsCount; l++)
                 {
                     neuronWeightings[l] = UnityEngine.Random.Range(0.0f, 1.0f) - 0.5f;
@@ -63,7 +67,7 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
         weightings = weightingList.ToArray();
 
     }
-
+    //Forward Propogation function to pass data through layers while applying weightings
     public float[] ForwardProp(float[] inputs)
     {
         //Loop through inputs placing each value within a neuron in the first layer(the input layer) of the ANN
@@ -83,7 +87,7 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
                 {
                     neuronVal += weightings[i - 1][l][p] * neurons[i - 1][p];
                 }
-                //Activation
+                //Activation Function
                 neurons[i][l] = (float)System.Math.Tanh(neuronVal);
             }
         }
@@ -91,38 +95,7 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
         //Return output layer
         return neurons[neurons.Length-1];
     }
-
-    public void Mutate()
-    {
-        for (int i = 0; i < weightings.Length; i++)
-        {
-            for ( int l = 0; l < weightings[i].Length; l++)
-            {
-                for (int p = 0; p < weightings[i][l].Length; p++)
-                {
-                    float currentWeight = weightings[i][l][p];
-                    //
-                    float randNum = UnityEngine.Random.Range(0.0f, 1000.0f);
-                    if (randNum <=2f)
-                    {
-                        currentWeight *= -1f;
-                    } else if (randNum <= 4f)
-                    {
-                        currentWeight = UnityEngine.Random.Range(-0.5f, 0.5f);
-                    } else if (randNum <= 6f)
-                    {
-                        currentWeight *= UnityEngine.Random.Range(0.0f, 1.0f) + 1f;
-                    } else if (randNum <= 8f)
-                    {
-                        currentWeight *= UnityEngine.Random.Range(0.0f, 1.0f);
-                    }
-                    //
-                    weightings[i][l][p] = currentWeight;
-                }
-            }
-        }
-    }
-
+    //Simple mutation function that has a chance to randomise a single weight in a layer
     public void MutateAlternate(float mutationChance)
     {
         for (int i = 0; i < weightings.Length; i++)
@@ -146,10 +119,12 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
     END:;
     }
 
+    //Reproduction Function that defines a random point in the network taking some weightings from one parent and some from another
     public NeuralNetwork Reproduction(NeuralNetwork otherParent)
     {
         NeuralNetwork child = new NeuralNetwork(layers);
         bool crossoverPointReached = false;
+        //Calculate random point
         int[] randomPoint = new int[3];
         randomPoint[0] = UnityEngine.Random.Range(0, weightings.Length);
         randomPoint[1] = UnityEngine.Random.Range(0, weightings[0].Length);
@@ -178,7 +153,7 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
     }
 
 
-    //Deep Copy
+    //Deep Copy Network
     public NeuralNetwork(NeuralNetwork copyNet)
     {
         layers = new int[copyNet.layers.Length];
@@ -190,7 +165,7 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
         InitialiseWeights();
         CopyWeights(copyNet.weightings);
     }
-
+    //Deep Copy Weights
     private void CopyWeights(float[][][] copyWeightings)
     {
         for (int i = 0; i < weightings.Length; i++)
@@ -204,17 +179,22 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
             }
         }
     }
-
+   //Incriment function for altering fitness
     public void IncrimentFitness(float fitnessAmount)
     {
         fitness += fitnessAmount;
     }
-
+    //Setter to set fitness to an exact value
     public void SetFitness(float fitnessAmount)
     {
         fitness = fitnessAmount;
     }
-
+    //Getter for fitness
+    public float GetFitness()
+    {
+        return fitness;
+    }
+    //CompareTo function for the purposes of IComparable operations
     public int CompareTo(NeuralNetwork otherNetwork)
     {
         if (otherNetwork == null)
@@ -232,10 +212,7 @@ public class NeuralNetwork : IComparable<NeuralNetwork>
             return 0;
         }
     }
-    public float GetFitness()
-    {
-        return fitness;
-    }
+ 
 
 }
 
